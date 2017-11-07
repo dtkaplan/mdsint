@@ -64,8 +64,9 @@ violin_density <- function(data = NULL, formula, alpha = 0.3, show.dots = 1, alp
     
     show.dots <- pmin(1, show.dots)
     dot_data <- sample_frac(data, size = show.dots) 
+    dots <- list(...)
     position_fun <- 
-      if (any(c("fill", "color", "group") %in% names(list(...)))) position_jitterdodge
+      if (is_formula(dots$fill) || is_formula(dots$color) || is_formula(dots$group)) position_jitterdodge
       else position_jitter
     P <- 
       P %>%
