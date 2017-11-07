@@ -1,0 +1,97 @@
+# Scottish Hill Racing web scraping
+
+The bottom line is that data were scraped from [here](http://www.scottishhillracing.co.uk/ResultsSummary.aspx) to get the URLs for 181
+individual races. Then the male and female winners for the past several years were scraped from those sites.
+
+```{r}
+library(tidyverse)
+library(rvest)
+library(lubridate)
+page <- "http://www.scottishhillracing.co.uk/RaceDetails.aspx?RaceID=RA-0098"
+page_contents <- page %>%
+  read_html()
+table_nodes <- page_contents %>%
+  html_nodes("table")
+table_list <-
+  html_table(table_nodes, fill = TRUE)
+```
+
+
+```{r}
+all_races_page <- "http://www.scottishhillracing.co.uk/ResultsSummary.aspx"
+all_races_contents <- all_races_page %>%
+  read_html()
+# all_races_nodes <- all_races_contents %>%
+#   html_nodes("table")
+# all_races_list <-
+#   html_table(all_races_nodes, fill = TRUE)
+raw <-as.character(all_races_contents)
+ pat <- "RaceID=RA\\-\\d{4}.*</a>"
+hoo <- unlist(stringr::str_extract_all(raw, pattern = pat))
+goo <- hoo[!grepl("img src", hoo)]
+goo <- goo[!grepl("RaceYear", goo)]
+race_ID <- stringr::str_extract(goo, "RA-\\d{4}")
+race_name <- stringr::str_extract(goo, ">.*<") %>% gsub("[<>]", "", .)
+Races <- data_frame(ID = race_ID, name = race_name)
+```
+
+```{r}
+extract_runners <- function(T) {
+  is_year <- which(! is.na(readr::parse_integer(T[[1]])))
+  is_year
+  T <- T[is_year, 1:3]
+  year <- readr::parse_integer(T[,1])
+  mens <- T[,2]
+  womens <- T[,3]
+  
+  TT <- data_frame(year = year, M = mens, W = womens)
+  TT <- gather(TT, key = sex, value = time, -year)
+  TT %>% 
+    mutate(name = gsub("\\(.*\\)$", "", time)) %>%
+    mutate(time = stringr::str_extract(time, "\\d:\\d{2}:\\d{2}")) %>%
+    separate(time, into = c("hour", "min", "sec"), sep = ":") %>%
+    mutate(time = 3600 * as.numeric(hour) + 60 * as.numeric(min) + as.numeric(sec)) %>%
+    select(-hour, -min, -sec)
+  
+}
+```
+
+```{r}
+extract_race_data <- function(T) {
+  vals <- T[T$X1 %in% c("Distance", "Climb"), 2]
+  vals <- gsub("[a-z ]", "", vals)
+  data.frame(distance = vals[1], climb = vals[2])
+}
+```
+
+```{r}
+read_one_race <- function(name, ID) {
+  file <- sprintf("http://www.scottishhillracing.co.uk/RaceDetails.aspx?RaceID=%s", ID)
+  page_contents <- file %>%
+    read_html()
+  table_nodes <- page_contents %>%
+    html_nodes("table")
+  table_list <-
+    html_table(table_nodes, fill = TRUE)
+  
+  Runners = extract_runners(table_list[[13]])
+  Runners$race <- name
+  Race <- extract_race_data(table_list[[8]])
+  Race$race <- name
+  list(Race = Race, Runners = Runners)
+}
+```
+
+```{r}
+All_runners <- list()
+All_races   <- list()
+for (k in 101:181) {
+  tmp <- try(read_one_race(Races$name[k], Races$ID[k]))
+  if (!inherits(tmp, "try-error")) {
+    All_runners[[length(All_runners) + 1]] <- tmp$Runners
+    All_races[[length(All_races) + 1]] <- tmp$Race
+  }
+}
+Hill_runner3 <- bind_rows(All_runners)
+Hill_races3  <- bind_rows(All_races)
+```
