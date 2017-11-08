@@ -4,6 +4,7 @@ Version: 0.0.0.9000
 Authors@R: person("Daniel", "Kaplan", email = "dtkaplan@gmail.com", role = c("aut", "cre"))
 Description: Provides support for resources for the Modeling for Data Science project
 Depends: R (>= 3.4.1), rlang, tidyverse, ggformula
+Suggests: mosaicCore, mosaic, mosaicData, mosaicModel
 License: All rights reserved.
 Encoding: UTF-8
 LazyData: true

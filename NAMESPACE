@@ -2,5 +2,8 @@
 
 export(df_from_expr)
 export(df_from_formula)
+export(draw_groupwise_mod)
 export(fill_template)
+export(groupwise_resids)
 export(violin_density)
+import(shiny)

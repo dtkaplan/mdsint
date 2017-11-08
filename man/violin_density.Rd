@@ -40,5 +40,6 @@ mtcars \%>\% violin_density(~ mpg)
 mtcars \%>\% violin_density(mpg ~ 1) # same thing
 mtcars \%>\% violin_density(mpg ~ cyl)
 mtcars \%>\% violin_density(mpg ~ 1 | cyl)
-mtcars \%>\% violin_density(mpg ~ cyl + carb | gear)
+Hill_runners \%>\% violin_density(time ~  year, fill = ~ sex)
+Hill_runners \%>\% violin_density(time ~ year, fill = ~ sex, color = ~ sex)
 }
