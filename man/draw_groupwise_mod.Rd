@@ -4,7 +4,7 @@
 \alias{draw_groupwise_mod}
 \title{Show residuals from groupwise means}
 \usage{
-draw_groupwise_mod(data = NULL, formula, alpha = 0.2, ...)
+draw_groupwise_mod(data = NULL, formula, alpha = 0.2, seed = NULL, ...)
 }
 \arguments{
 \item{data}{A data frame containing the data to be used}
@@ -12,6 +12,8 @@ draw_groupwise_mod(data = NULL, formula, alpha = 0.2, ...)
 \item{formula}{A formula \code{y ~ gp`` specifying the grouping variable (}gp\code{) and the response variable (}y\code{) Formulas with a second grouping variable (e.g.}y ~ gp1 + gp2`) are also accepted.}
 
 \item{alpha}{Numeric 0 to 1. Level of opaqueness.}
+
+\item{seed}{Optional integer seed for the random numbers used in jittering. Use if you want reproducibility.}
 }
 \description{
 Makes a specific format of plot that shows groupwise means and the residuals from those means.

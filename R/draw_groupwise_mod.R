@@ -5,21 +5,28 @@
 #' @param data A data frame containing the data to be used
 #' @param formula A formula `y ~ gp`` specifying the grouping variable (`gp`) and the response variable (`y`) Formulas with a second grouping variable (e.g. `y ~ gp1 + gp2`) are also accepted.
 #' @param alpha Numeric 0 to 1. Level of opaqueness.
+#' @param seed Optional integer seed for the random numbers used in jittering. Use if you want reproducibility.
 #' @export
-draw_groupwise_mod <- function(data = NULL, formula, alpha = 0.2, ...) {
+draw_groupwise_mod <- function(data = NULL, formula, alpha = 0.2, seed = NULL, ...) {
   mod <- lm(formula, data = data)
   Dat <- df_from_formula(formula, data = data)
   response_var <- (Dat %@% "left_vars")[1]
   explanatory_var <- (Dat %@% "right_vars")[1]
+  if (is.na(explanatory_var)) {
+    # there was a formula like y ~ 1
+    explanatory_var <- "all_in_same_group"
+    Dat$all_in_same_group <- ""
+  }
   if (! is.numeric(Dat[[response_var]])) stop("Response variable must be numeric.")
   # if (is.numeric(Dat[[explanatory_var]])) stop("Explanatory variable must be categorical.")
   if ( ! is.factor(Dat[[explanatory_var]])) Dat[[explanatory_var]] <- as.factor(Dat[[explanatory_var]])
+  if (!is.null(seed) && is_integer(seed)) set.seed(seed)
   for_jitter <- runif(nrow(Dat), max = 0.3, min = -0.3)
   Dat[["horiz_position"]] <- as.numeric(Dat[[explanatory_var]]) + for_jitter
   # draw the model line extending a bit beyond the jitter.
   Dat[["horiz_position_2"]] <- as.numeric(Dat[[explanatory_var]]) + 1.2 * 0.3 * sign(for_jitter)
   
-  Dat$model_output <- mosaicModel::mod_eval(mod, data = data, append = FALSE)
+  Dat$model_output <- mosaicModel::mod_eval(mod, data = data, append = FALSE)$model_output
   Dat$residuals <- Dat[[response_var]] - Dat$model_output
   P <- gf_blank(as.formula(fill_template("{{y}} ~ {{x}}", x = explanatory_var, y = response_var)),
                 data = Dat, show.legend = FALSE)
@@ -51,5 +58,5 @@ draw_groupwise_mod <- function(data = NULL, formula, alpha = 0.2, ...) {
                                         y1 = response_var, y2 = "model_output", x = "horiz_position")),
                data = Dat, color = for_color, alpha = alpha, show.legend = FALSE)
   
-  list(plot = P2, matrix = Dat) # return the data frame with all the information. For brushing add ons
+  list(plot = P2, matrix = Dat, model = mod) # return the data frame with all the information. For brushing add ons
 }
