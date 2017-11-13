@@ -4,9 +4,8 @@
 groupwise_app_1 <- function(data, response_var, explanatory_vars = c("year", "sex", "race name" = "race")) {
   require(shiny)
   require(shinydashboard)
-  require(markdown)
-  shinyApp(
-    ui <- dashboardPage(
+  shinyApp(options = list(width = "600px", height = "400px"),
+    ui = dashboardPage(
       dashboardHeader(title = "Analysis of Variance"),
       dashboardSidebar(
         selectInput("group_by", "Grouping variable", c("none" = "1", explanatory_vars)),
@@ -14,15 +13,10 @@ groupwise_app_1 <- function(data, response_var, explanatory_vars = c("year", "se
                     c("standard deviation", "variance", "sum of squares", "mean square", "range")), 
         hr(),
         p(paste0("Response variable is <", response_var, ">")),
-        p(textOutput("measure_choice", inline = TRUE), "of response:", textOutput("total_spread", inline = TRUE)),
-        p("That's the \"whole\"."), 
-        p("Breaking into components..."),
-        p("   Model values ..."),
-        p("\t      ", textOutput("model_spread", inline = "TRUE")),
-        p("   Residuals ..."), 
-        p("      ", textOutput("resid_spread", inline = TRUE)), 
-        hr(),
-        p("Sum of components ...", textOutput("sum_spreads", inline = "TRUE")),
+        p("The \"whole\" ...", textOutput("measure_choice", inline = TRUE), "of \nresponse var.:", textOutput("total_spread", inline = TRUE)),
+        HTML("The parts ...<ul><li>Model values ..."), textOutput("model_spread", inline = "TRUE"),
+        HTML("</li><li>Residuals ..."), textOutput("resid_spread", inline = TRUE), HTML("</li></ul>"), 
+        p("Sum of the parts ...", textOutput("sum_spreads", inline = "TRUE")),
         p(textOutput("sum_matches", inline = TRUE))
       ),
       dashboardBody(plotOutput("plot1"))

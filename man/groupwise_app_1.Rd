@@ -2,10 +2,11 @@
 % Please edit documentation in R/groupwise_app_1.R
 \name{groupwise_app_1}
 \alias{groupwise_app_1}
-\title{Show resids from a groupwise app}
+\title{Shiny app to show resids from a groupwise model}
 \usage{
-groupwise_app_1(data, response_var, explanatory_vars)
+groupwise_app_1(data, response_var, explanatory_vars = c("year", "sex", `race
+  name` = "race"))
 }
 \description{
-Show resids from a groupwise app
+Shiny app to show resids from a groupwise model
 }
