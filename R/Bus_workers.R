@@ -18,7 +18,7 @@
 #' @format 24937 transport workers in London busses.
 #' * `age` -- age of the worker in 1949-1950
 #' * `job` -- whether the worker was a bus driver or conductor
-#' * `attack` -- whether the worker presented with medical symptoms of coronary heart disease
+#' * `event` -- whether the worker presented with medical symptoms of coronary heart disease
 #' * `day3` -- whether the worker survived the first 3 days after the onset of symptoms
 #' * `month3` -- whether the worker survived the first 3 months after the onset of symptoms
 #' * `year3` -- whether the worker survived the first 3 years after the onset of symptoms.

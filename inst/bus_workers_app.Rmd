@@ -1,0 +1,68 @@
+---
+title: "Heart attacks, age, and occupation"
+output: html_document
+runtime: shiny_prerendered
+---
+
+```{r setup-bus-workers, include=FALSE}
+library(learnr)
+library(shiny)
+library(mdsint)
+library(ggformula)
+library(mosaic)
+library(mosaicModel)
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+```{r echo = FALSE}
+checkboxInput("bygroups", "Show drivers vs conductors", value = FALSE)
+checkboxInput("logistic", "Use logistic regression", value = FALSE)
+plotOutput("riskplot", brush = brushOpts(id = "age", fill = "#ccc", direction = "x"))
+```
+
+
+```{r context = "server"}
+data(Bus_workers, package = "mdsint")
+get_formula <- reactive({
+    if (input$bygroups) { event == "attack" ~ age + job }
+    else { event == "attack" ~ age }
+})
+# handle initiation and make sure the age range is large enough
+min_age <- reactive({if (is.null(input$age)) 45 else pmin(60, pmax(35, input$age$xmin))})
+max_age <- reactive({if (is.null(input$age)) 55 else pmin(65, pmax(min_age()+5, input$age$xmax))})
+
+get_data <- reactive({
+  Bus_workers[(Bus_workers$age >= min_age()) & 
+                  (Bus_workers$age <= max_age()), ]
+})
+get_model <- reactive({
+  f <- get_formula()
+  This_data <- get_data()
+  
+  if (input$logistic)
+    glm(f, data = This_data, family = binomial)
+  else
+    lm(f, data = This_data)
+})
+get_baseline_curve <- reactive({
+  f <- get_formula()
+  
+  mod <- 
+    if (input$logistic)
+      glm(f, data = Bus_workers, family = binomial)
+    else
+      lm(f, data = Bus_workers)
+  mod_eval(mod, age = 35:64)
+})
+output$riskplot <- renderPlot({
+  mod <- get_model()
+  curve <- get_baseline_curve()
+  This_data <- get_data()
+  mod_plot(mod, interval = "confidence", data = This_data) %>% 
+    gf_line(data = curve, model_output ~ age, alpha = 0.5)  %>%
+    gf_lims(x = c(35,65), y = c(-0.005, .025)) %>%
+    gf_labs(y = "Prob. of heart attack in the next year")
+})
+```
+

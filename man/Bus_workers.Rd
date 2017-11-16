@@ -8,7 +8,7 @@
 \itemize{
 \item \code{age} -- age of the worker in 1949-1950
 \item \code{job} -- whether the worker was a bus driver or conductor
-\item \code{attack} -- whether the worker presented with medical symptoms of coronary heart disease
+\item \code{event} -- whether the worker presented with medical symptoms of coronary heart disease
 \item \code{day3} -- whether the worker survived the first 3 days after the onset of symptoms
 \item \code{month3} -- whether the worker survived the first 3 months after the onset of symptoms
 \item \code{year3} -- whether the worker survived the first 3 years after the onset of symptoms.
