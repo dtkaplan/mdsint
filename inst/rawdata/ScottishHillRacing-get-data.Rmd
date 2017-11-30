@@ -96,4 +96,7 @@ Hill_runner3 <- bind_rows(All_runners)
 # get rid of terminating white space in "name"
 Hill_runner3$name <- gsub("[\\s]*$", "", Hill_runner3$name)
 Hill_races3  <- bind_rows(All_races)
+Hill_races3 <- Hill_races3 %>%
+  mutate(climb = as.numeric(climb),
+         distance = as.numeric(distance))
 ```
